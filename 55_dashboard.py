@@ -11,11 +11,8 @@ import plotly.graph_objs as go
 
 # ========== LAP TIME DATA ==========
 
-def fetch_live_lap_data(driver_number=55):
-    url = f"https://api.openf1.org/v1/laps?session_key=latest&driver_number={driver_number}"
-    response = urlopen(url)
-    data = json.loads(response.read().decode('utf-8'))
-
+def fetch_live_lap_data(data):
+    
     lap_data = {}
     for lap in data:
         lap_number = lap.get("lap_number")
@@ -25,14 +22,36 @@ def fetch_live_lap_data(driver_number=55):
 
     return lap_data
 
-
-lap_data=fetch_live_lap_data(driver_number=55)
-
 def format_lap_time(seconds):
     minutes = int(seconds // 60)
     secs = int(seconds % 60)
     millis = int((seconds - int(seconds)) * 1000)
     return f"{minutes}:{secs:02d}.{millis:03d}"
+
+def fetch_sector_data(data):
+    lap_list = []
+
+    for lap in data:
+        # Only include laps that have all three sectors
+        if all(k in lap for k in ['lap_number', 'segments_sector_1', 'segments_sector_2', 'segments_sector_3']):
+            lap_entry = {
+                'lap_number': lap['lap_number'],
+                'segments_sector_1': lap['segments_sector_1'],
+                'segments_sector_2': lap['segments_sector_2'],
+                'segments_sector_3': lap['segments_sector_3']
+            }
+            lap_list.append(lap_entry)
+    return lap_list
+
+
+url = "https://api.openf1.org/v1/laps?session_key=latest&driver_number=55"
+response = urlopen(url)
+data = json.loads(response.read().decode('utf-8'))
+
+lap_data=fetch_live_lap_data(data)
+lap_sector_data=fetch_sector_data(data)
+
+
 
 lap_numbers = list(lap_data.keys())
 lap_times = list(lap_data.values())
@@ -63,41 +82,17 @@ lap_time_figure = {
 }
 
 # ========== MINI-SECTOR MATRIX DATA ==========
-data = [
-    {
-        'lap_number': 2,
-        'segments_sector_1': [2049, 2049, 2049, 2049, 2049, 2048, 2049, 2049, 2048],
-        'segments_sector_2': [2049, 2048, 2048, 2049, 2049, 2049],
-        'segments_sector_3': [2049, 2048, 2048, 2048, 2049, 2049]
-    },
-    {
-        'lap_number': 3,
-        'segments_sector_1': [2049, 2049, 2049, 2049, 2049, 2048, 2049, 2049, 2048],
-        'segments_sector_2': [2049, 2049, 2051, 2049, 2049, 2048],
-        'segments_sector_3': [2049, 2049, 2049, 2049, 2049, 2048]
-    },
-    {
-        'lap_number': 4,
-        'segments_sector_1': [2049, 2049, 2049, 2049, 2049, 2048, 2049, 2049, 2048],
-        'segments_sector_2': [2049, 2049, 2051, 2049, 2049, 2048],
-        'segments_sector_3': [2049, 2049, 2049, 2049, 2049, 2048]
-    },
-    {
-        'lap_number': 5,
-        'segments_sector_1': [2049, 2049, 2049, 2049, 2049, 2048, 2049, 2049, 2048],
-        'segments_sector_2': [2049, 2049, 2051, 2049, 2049, 2048],
-        'segments_sector_3': []
-    }
-]
+
 
 color_map = {
     2048: '#FFFF00',  # Yellow
     2049: '#00FF00',  # Green
-    2051: '#8000FF'   # Purple
+    2051: '#8000FF',   # Purple
+    None: '#FF00FF'
 }
 
 segment_traces = []
-for lap in data:
+for lap in lap_sector_data:
     lap_label = f"Lap {lap['lap_number']}"
     segments = lap['segments_sector_1'] + lap['segments_sector_2'] + lap['segments_sector_3']
     for col_index, seg in enumerate(segments):
@@ -123,8 +118,8 @@ mini_sector_figure = {
         font=dict(color='white'),
         xaxis=dict(title='Mini-Sector Index', showgrid=False, tickfont=dict(color='white')),
         yaxis=dict(title='Lap', showgrid=False, tickfont=dict(color='white')),
-        height=80 * len(data),
-        margin=dict(t=50, l=60, r=20, b=60)
+        height=20 * len(data),
+        margin=dict(t=50, l=20, r=20, b=60)
     )
 }
 
