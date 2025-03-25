@@ -1,0 +1,131 @@
+[
+  {
+    "meeting_key": 1255,
+    "session_key": 9998,
+    "driver_number": 55,
+    "i1_speed": 275,
+    "i2_speed": 272,
+    "st_speed": 335,
+    "date_start": "2025-03-23T07:07:06.121000+00:00",
+    "lap_duration": 99.27,
+    "is_pit_out_lap": false,
+    "duration_sector_1": 26.29,
+    "duration_sector_2": 30.258,
+    "duration_sector_3": 42.722,
+    "segments_sector_1": [
+      null,
+      2049,
+      2049,
+      2048,
+      2049,
+      2048,
+      2048
+    ],
+    "segments_sector_2": [
+      2049,
+      2048,
+      2049,
+      2049,
+      2048,
+      2048
+    ],
+    "segments_sector_3": [
+      2049,
+      2048,
+      2049,
+      2048,
+      2049,
+      2049,
+      2049,
+      2049,
+      2048
+    ],
+    "lap_number": 3
+  },
+  {
+    "meeting_key": 1255,
+    "session_key": 9998,
+    "driver_number": 55,
+    "i1_speed": 276,
+    "i2_speed": 270,
+    "st_speed": 334,
+    "date_start": "2025-03-23T07:08:45.400000+00:00",
+    "lap_duration": 98.789,
+    "is_pit_out_lap": false,
+    "duration_sector_1": 26.343,
+    "duration_sector_2": 30.062,
+    "duration_sector_3": 42.384,
+    "segments_sector_1": [
+      2048,
+      2048,
+      2049,
+      2048,
+      2048,
+      2048,
+      2048
+    ],
+    "segments_sector_2": [
+      2049,
+      2048,
+      2048,
+      2049,
+      2049,
+      2049
+    ],
+    "segments_sector_3": [
+      2049,
+      2048,
+      2048,
+      2048,
+      2049,
+      2051,
+      2049,
+      2049,
+      2049
+    ],
+    "lap_number": 4
+  },
+  {
+    "meeting_key": 1255,
+    "session_key": 9998,
+    "driver_number": 55,
+    "i1_speed": null,
+    "i2_speed": 270,
+    "st_speed": 335,
+    "date_start": "2025-03-23T07:10:24.149000+00:00",
+    "lap_duration": 98.787,
+    "is_pit_out_lap": false,
+    "duration_sector_1": 26.386,
+    "duration_sector_2": 30.262,
+    "duration_sector_3": 42.139,
+    "segments_sector_1": [
+      null,
+      2048,
+      2049,
+      2048,
+      2048,
+      2048,
+      2048
+    ],
+    "segments_sector_2": [
+      2048,
+      2048,
+      2049,
+      2048,
+      2048,
+      2048
+    ],
+    "segments_sector_3": [
+      2048,
+      2048,
+      2048,
+      2049,
+      2049,
+      2048,
+      2048,
+      2049,
+      2048
+    ],
+    "lap_number": 5
+  }
+]

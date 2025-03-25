@@ -1,41 +1,70 @@
 import plotly.graph_objs as go
 
-color_map = {
-    2048: '#FFFF00',
-    2049: '#00FF00',
-    2051: '#8000FF',
-    None: '#FF00FF'
+# Color scale: normalized values from 0 to 1
+color_scale = [
+    [0.00, '#222222'],  # None
+    [0.25, '#FFFF00'],  # 2048 - Yellow
+    [0.50, '#00FF00'],  # 2049 - Green
+    [0.75, '#8000FF'],  # 2051 - Purple
+    [1.00, '#FF69B4']   # 2064 - Pink
+]
+
+# Map raw segment codes to scale indices
+segment_code_map = {
+    None: 0,
+    2048: 1,
+    2049: 2,
+    2051: 3,
+    2064: 4
 }
 
-def generate_mini_sector_figure(lap_sector_data):
-    traces = []
-    for lap in lap_sector_data:
-        lap_label = f"Lap {lap['lap_number']}"
-        segments = lap['segments_sector_1'] + lap['segments_sector_2'] + lap['segments_sector_3']
-        for col_index, seg in enumerate(segments):
-            traces.append(
-                go.Bar(
-                    x=[col_index],
-                    y=[lap_label],
-                    orientation='h',
-                    width=1,
-                    marker=dict(color=color_map.get(seg, 'gray')),
-                    hovertemplate=f"{lap_label} - Segment {col_index + 1}<br>Code: {seg}<extra></extra>",
-                    showlegend=False
-                )
-            )
+def generate_mini_sector_heatmap(raw_data):
+    if not raw_data:
+        return {'data': [], 'layout': go.Layout(title='No Data')}
+
+    lap_labels = [f"Lap {lap['lap_number']}" for lap in raw_data]
+    max_segments = max(
+        len(lap['segments_sector_1'] + lap['segments_sector_2'] + lap['segments_sector_3'])
+        for lap in raw_data
+    )
+
+    z = []
+
+    for lap in raw_data:
+        segments = (
+            lap.get('segments_sector_1', []) +
+            lap.get('segments_sector_2', []) +
+            lap.get('segments_sector_3', [])
+        )
+
+        # Pad to align all laps visually
+        segments += [None] * (max_segments - len(segments))
+
+        z_row = [segment_code_map.get(code, 0) for code in segments]
+        z.append(z_row)
+
+    trace = go.Heatmap(
+        z=z,
+        x=[f"S{i+1}" for i in range(max_segments)],
+        y=lap_labels,
+        hoverinfo='skip',  # disables hover info
+        colorscale=color_scale,
+        zmin=0,
+        zmax=4,
+        showscale=False,
+        xgap=1,
+        ygap=1
+    )
 
     return {
-        'data': traces,
+        'data': [trace],
         'layout': go.Layout(
-            title='Mini-Sector Performance Grid',
-            barmode='stack',
             paper_bgcolor='#111111',
             plot_bgcolor='#111111',
             font=dict(color='white'),
-            xaxis=dict(title='Mini-Sector Index', showgrid=False, tickfont=dict(color='white')),
-            yaxis=dict(title='Lap', showgrid=False, tickfont=dict(color='white')),
-            height=20 * len(lap_sector_data),
-            margin=dict(t=50, l=20, r=20, b=60)
+            xaxis=dict(tickfont=dict(color='white'), side='top'),
+            yaxis=dict(title="Lap", tickfont=dict(color='white'), autorange="reversed"),
+            margin=dict(t=60, l=80, r=40, b=60),
+            height=max(200, 30 * len(raw_data)),
         )
     }
