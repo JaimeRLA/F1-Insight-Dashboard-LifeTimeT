@@ -1,17 +1,18 @@
 import plotly.graph_objs as go
 from utils.helpers import format_lap_time
 
-def generate_lap_time_figure(lap_data):
+def generate_lap_time_figure(raw_data, driver_number=55):
     lap_numbers = []
     lap_times = []
     formatted_times = []
 
-    for lap, time in lap_data.items():
-        if time is not None:
-            lap_numbers.append(lap)
-            lap_times.append(time)
-            formatted_times.append(format_lap_time(time))
-
+    for lap in raw_data:
+        if lap.get("driver_number") == driver_number and lap.get("lap_duration") is not None:
+            lap_number = lap["lap_number"]
+            duration = lap["lap_duration"]
+            lap_numbers.append(lap_number)
+            lap_times.append(duration)
+            formatted_times.append(format_lap_time(duration))
 
     return {
         'data': [
@@ -30,7 +31,7 @@ def generate_lap_time_figure(lap_data):
             paper_bgcolor='#111111',
             plot_bgcolor='#111111',
             font=dict(color='white'),
-            title='Lap Times vs. Lap Number',
+            title=f'Lap Times vs. Lap Number (Driver {driver_number})',
             xaxis=dict(title='Lap Number', color='white', gridcolor='#444'),
             yaxis=dict(title='Lap Duration (seconds)', color='white', gridcolor='#444'),
             hovermode='closest'

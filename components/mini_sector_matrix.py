@@ -18,19 +18,22 @@ segment_code_map = {
     2064: 4
 }
 
-def generate_mini_sector_heatmap(raw_data):
-    if not raw_data:
+def generate_mini_sector_heatmap(raw_data, driver_number=55):
+    # Filter only for the selected driver
+    driver_laps = [lap for lap in raw_data if lap.get("driver_number") == driver_number]
+
+    if not driver_laps:
         return {'data': [], 'layout': go.Layout(title='No Data')}
 
-    lap_labels = [f"Lap {lap['lap_number']}" for lap in raw_data]
+    lap_labels = [f"Lap {lap['lap_number']}" for lap in driver_laps]
     max_segments = max(
-        len(lap['segments_sector_1'] + lap['segments_sector_2'] + lap['segments_sector_3'])
-        for lap in raw_data
+        len(lap.get('segments_sector_1', []) + lap.get('segments_sector_2', []) + lap.get('segments_sector_3', []))
+        for lap in driver_laps
     )
 
     z = []
 
-    for lap in raw_data:
+    for lap in driver_laps:
         segments = (
             lap.get('segments_sector_1', []) +
             lap.get('segments_sector_2', []) +
@@ -47,7 +50,7 @@ def generate_mini_sector_heatmap(raw_data):
         z=z,
         x=[f"S{i+1}" for i in range(max_segments)],
         y=lap_labels,
-        hoverinfo='skip',  # disables hover info
+        hoverinfo='skip',
         colorscale=color_scale,
         zmin=0,
         zmax=4,
@@ -65,6 +68,6 @@ def generate_mini_sector_heatmap(raw_data):
             xaxis=dict(tickfont=dict(color='white'), side='top'),
             yaxis=dict(title="Lap", tickfont=dict(color='white'), autorange="reversed"),
             margin=dict(t=60, l=80, r=40, b=60),
-            height=max(200, 30 * len(raw_data)),
+            height=max(200, 30 * len(driver_laps))
         )
     }
