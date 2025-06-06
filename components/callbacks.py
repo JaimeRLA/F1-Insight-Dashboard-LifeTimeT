@@ -13,19 +13,17 @@ from utils.fetch_data import (
     fetch_message_data
 )
 
-from top_speed_line import generate_top_speed_plot
 from lap_time_graph import generate_lap_time_figure
 from mini_sector_matrix import generate_mini_sector_heatmap
 from sector_time_hm import generate_sector_time_heatmap
 from stint_visualization import generate_stint_visualization
 from live_message_box import get_latest_message
-from last_pitstop_box import get_last_pitstop_box
 from meeting_info_box import display_meeting_info
 from weather_box import render_weather_box
-from driver_position_box import render_driver_position_line
+from driver_position_box import render_driver_position_box
 
 # Número del piloto que estás siguiendo
-driver_number = 16
+driver_number = 4
 
 # === 1. Callbacks para cargar datos a los Stores (1 llamada por tipo de dato) ===
 
@@ -60,9 +58,6 @@ def update_message_store(n):
 
 # === 2. Callbacks para actualizar gráficos usando datos desde Store ===
 
-@app.callback(Output('top-speed-graph', 'figure'), Input('lap-data-store', 'data'))
-def update_top_speed(data):
-    return generate_top_speed_plot(data, driver_number)
 
 @app.callback(Output('lap-time-graph', 'figure'), Input('lap-data-store', 'data'))
 def update_lap_times(data):
@@ -101,4 +96,4 @@ def update_weather(data):
 
 @app.callback(Output('position-box', 'children'), Input('position-data-store', 'data'))
 def update_position(data):
-    return render_driver_position_line(data, driver_number)
+    return render_driver_position_box(data, driver_number)

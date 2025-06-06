@@ -1,7 +1,3 @@
-from urllib.request import urlopen
-import json
-
-# utils/fetch_data.py
 
 from urllib.request import urlopen
 import json

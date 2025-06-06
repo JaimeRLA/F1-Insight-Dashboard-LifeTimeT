@@ -1,15 +1,5 @@
 from dash import html, dcc
-from lap_time_graph import generate_lap_time_figure
-from mini_sector_matrix import generate_mini_sector_heatmap
-from top_speed_line import generate_top_speed_plot
-from sector_time_hm import generate_sector_time_heatmap
-from stint_visualization import generate_stint_visualization
-from live_message_box import get_latest_message
-from last_pitstop_box import get_last_pitstop_box
-from meeting_info_box import display_meeting_info
-from weather_box import render_weather_box
-from driver_position_box import render_driver_position_line
-from utils.fetch_data import fetch_position_data
+
 
 def get_layout():
     driver_number = 16  # Puedes hacerlo dinámico más adelante
