@@ -37,7 +37,7 @@ def get_sector_color_from_minis(segments):
 
 def generate_sector_split_matrix(lap_data):
     try:
-        # Mapping drivers to teams and colors
+        # Team & color mappings
         driver_team_map = {
             4: 'McLaren', 81: 'McLaren',
             1: 'Red Bull', 22: 'Red Bull',
@@ -76,6 +76,8 @@ def generate_sector_split_matrix(lap_data):
         df['sector_color_s2'] = df['segments_sector_2'].apply(get_sector_color_from_minis)
         df['sector_color_s3'] = df['segments_sector_3'].apply(get_sector_color_from_minis)
 
+        df['Outlap'] = df['is_pit_out_lap'].apply(lambda x: 'TRUE' if x else 'FALSE')
+
         def calc_total(row):
             if pd.notnull(row['S1']) and pd.notnull(row['S2']) and pd.notnull(row['S3']):
                 return format_lap_time(row['S1'] + row['S2'] + row['S3'])
@@ -83,12 +85,14 @@ def generate_sector_split_matrix(lap_data):
 
         df['Total Time'] = df.apply(calc_total, axis=1)
 
-        table_data = df[['driver_number', 'S1', 'S2', 'S3', 'Total Time']].copy()
-        table_data.columns = ['Driver', 'S1', 'S2', 'S3', 'Total Time']
+        # Table data
+        table_data = df[['driver_number', 'S1', 'S2', 'S3', 'Total Time', 'Outlap']].copy()
+        table_data.columns = ['Driver', 'S1', 'S2', 'S3', 'Total Time', 'Outlap']
 
         for col in ['S1', 'S2', 'S3']:
             table_data[col] = table_data[col].apply(lambda x: round(x, 3) if pd.notnull(x) else "No Time")
 
+        # Color styling
         color_map = {
             'purple': '#8000FF',
             'green': '#00FF00',
@@ -134,8 +138,21 @@ def generate_sector_split_matrix(lap_data):
                     'color': font_color
                 })
 
+        # Outlap column styling
+        for i, row in df.iterrows():
+            driver = row['driver_number']
+            status = row['Outlap']
+            style_data_conditional.append({
+                'if': {
+                    'filter_query': f'{{Driver}} = {driver}',
+                    'column_id': 'Outlap'
+                },
+                'backgroundColor': '#00FF00' if status == 'TRUE' else '#FF4C4C',
+                'color': 'black'
+            })
+
         return html.Div(
-            style={'padding': '20px', 'backgroundColor': '#1a1a1a', 'borderRadius': '10px'},
+            style={'padding': '20px', 'backgroundColor': '#111111', 'borderRadius': '10px'},
             children=[
                 html.H2("Latest Lap Times by Driver", style={
                     'color': 'white',

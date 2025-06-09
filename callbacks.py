@@ -16,9 +16,9 @@ from utils.fetch_data import (
 )
 
 from mini_sector_matrix_single import generate_mini_sector_heatmap
-from stint_visualization import generate_stint_visualization
+from stint_visualization import generate_full_stint_plot
 from live_message_box import get_latest_message
-from meeting_info_box import display_meeting_info
+from dashboard_header import render_dashboard_header  # adjust import path if needed
 from weather_box import render_weather_box
 from driver_position_box import render_driver_position_box
 from sector_split_matrix import generate_sector_split_matrix
@@ -27,6 +27,7 @@ from qualifying_classification import (
     build_live_qualifying_result,
     render_qualifying_table
 )
+
 
 # Número del piloto que estás siguiendo
 driver_number = 4
@@ -74,7 +75,7 @@ def update_sector_split_matrix(data):
 
 @app.callback(Output('stint-visualization', 'figure'), Input('stint-data-store', 'data'))
 def update_stint_graph(data):
-    return generate_stint_visualization(data, driver_number)
+    return generate_full_stint_plot(data)
 
 @app.callback(
     Output('qualifying-classification-box', 'children'),
@@ -85,6 +86,17 @@ def update_qualifying_table(lap_data, message_data):
     result_df = build_live_qualifying_result(df, current_phase)
     return render_qualifying_table(result_df)
 
+@app.callback(
+    Output('dashboard-header', 'children'),
+    Input('meeting-data-store', 'data')
+)
+def update_dashboard_header(meeting_data):
+    return render_dashboard_header(meeting_data)
+
+
+
+
+
 
 
 # === 3. Callbacks para actualizar cajas de información ===
@@ -93,9 +105,7 @@ def update_qualifying_table(lap_data, message_data):
 def update_message(data):
     return get_latest_message(data)
 
-@app.callback(Output('meeting-info-box', 'children'), Input('meeting-data-store', 'data'))
-def update_meeting_box(data):
-    return display_meeting_info(data)
+
 
 @app.callback(Output('weather-box', 'children'), Input('weather-data-store', 'data'))
 def update_weather(data):

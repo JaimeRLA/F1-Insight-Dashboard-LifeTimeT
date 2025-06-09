@@ -116,7 +116,7 @@ def generate_mini_sector_heatmap(raw_data):
             x=0.5,
             font=dict(color='white', size=20)
         ),
-        paper_bgcolor='#1a1a1a',
+        paper_bgcolor='#111111',
         plot_bgcolor='#111111',
         font=dict(color='white'),
         xaxis=dict(

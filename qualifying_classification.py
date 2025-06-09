@@ -61,30 +61,65 @@ def build_live_qualifying_result(df, current_phase):
 
     return best_q3.assign(eliminated=False)
 
-
 def render_qualifying_table(df):
+    # Team color setup
+    driver_team_map = {
+        4: 'McLaren', 81: 'McLaren',
+        1: 'Red Bull', 22: 'Red Bull',
+        16: 'Ferrari', 44: 'Ferrari',
+        63: 'Mercedes', 12: 'Mercedes',
+        5: 'Sauber', 27: 'Sauber',
+        31: 'Haas', 87: 'Haas',
+        30: 'RB', 6: 'RB',
+        55: 'Williams', 23: 'Williams',
+        10: 'Alpine', 43: 'Alpine',
+        14: 'Aston', 18: 'Aston'
+    }
+
+    team_color_map = {
+        'McLaren': '#FF8000',
+        'Red Bull': "#00225E",
+        'Ferrari': '#DC0000',
+        'Mercedes': '#00D2BE',
+        'Sauber': '#00E701',
+        'Haas': '#B6BABD',
+        'RB': '#FFFFFF',
+        'Williams': "#266BEC",
+        'Alpine': '#FF87BC',
+        'Aston': '#00665E'
+    }
+
     rows = []
     for i, row in enumerate(df.itertuples(), start=1):
-        time_str = f"{row.calculated_lap_time:.3f}s"
-        color = {
-            "Q1": "#FFFACD",  # lightyellow
-            "Q2": "#87CEFA",  # lightskyblue
-            "Q3": "#90EE90"   # lightgreen
-        }.get(row.session, "#FFFFFF")
+        minutes = int(row.calculated_lap_time // 60)
+        seconds = row.calculated_lap_time % 60
+        time_str = f"{minutes}:{seconds:06.3f}"
+
+        background_color = {
+            "Q1": "#000000",
+            "Q2": "#000000",
+            "Q3": "#000000"
+        }.get(row.session, "#000000")
+
+        team = driver_team_map.get(row.driver_number)
+        team_color = team_color_map.get(team, "white")
 
         rows.append(html.Tr([
-            html.Td(i, style={"padding": "12px", "fontWeight": "bold"}),
-            html.Td(row.driver_number, style={"padding": "12px"}),
-            html.Td(row.session, style={"padding": "12px"}),
-            html.Td(time_str, style={"padding": "12px"})
+            html.Td(i, style={"padding": "12px", "fontWeight": "bold", "color": "white", "border": "1px solid white"}),
+            html.Td(
+                row.driver_number,
+                style={"padding": "12px", "color": team_color, "fontWeight": "bold", "border": "1px solid white"}
+            ),
+            html.Td(row.session, style={"padding": "12px", "color": "white", "border": "1px solid white"}),
+            html.Td(time_str, style={"padding": "12px", "color": "white", "border": "1px solid white"})
         ], style={
-            "backgroundColor": color,
+            "backgroundColor": background_color,
             "fontSize": "16px",
             "textAlign": "center"
         }))
 
     return html.Div([
-        html.H2("🏁 Live Qualifying Leaderboard", style={
+        html.H2("Live Qualifying Leaderboard", style={
             "color": "white",
             "textAlign": "center",
             "marginBottom": "20px",
@@ -92,20 +127,19 @@ def render_qualifying_table(df):
         }),
         html.Table([
             html.Thead(html.Tr([
-                html.Th("Pos", style={"padding": "12px", "color": "white", "fontSize": "18px"}),
-                html.Th("Driver", style={"padding": "12px", "color": "white", "fontSize": "18px"}),
-                html.Th("Session", style={"padding": "12px", "color": "white", "fontSize": "18px"}),
-                html.Th("Best Lap", style={"padding": "12px", "color": "white", "fontSize": "18px"})
-            ], style={"backgroundColor": "#111111"})),
+                html.Th("Pos", style={"padding": "12px", "color": "white", "fontSize": "18px", "border": "1px solid white"}),
+                html.Th("Driver", style={"padding": "12px", "color": "white", "fontSize": "18px", "border": "1px solid white"}),
+                html.Th("Session", style={"padding": "12px", "color": "white", "fontSize": "18px", "border": "1px solid white"}),
+                html.Th("Best Lap", style={"padding": "12px", "color": "white", "fontSize": "18px", "border": "1px solid white"})
+            ], style={"backgroundColor": "#000000"})),
             html.Tbody(rows)
         ], style={
             "width": "100%",
             "borderCollapse": "collapse",
-            "backgroundColor": "#1a1a1a",
-            "border": "1px solid #333",
+            "backgroundColor": "#000000",
+            "border": "1px solid white",
             "borderRadius": "8px",
-            "boxShadow": "0 0 10px rgba(0,0,0,0.5)",
+            "boxShadow": "0 0 10px rgba(255,255,255,0.1)",
             "fontFamily": "Arial"
         })
     ], style={"padding": "20px"})
-
