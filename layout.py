@@ -1,7 +1,6 @@
 from dash import html, dcc
 
 def get_layout():
-    driver_number = 16  # Puedes hacerlo dinámico más adelante
 
     card_style = {
         'backgroundColor': '#333333',
@@ -41,13 +40,7 @@ def get_layout():
 
             # Graphs Section
             html.Div([
-                # Left Column
                 html.Div([
-                    html.Div([
-                        html.H3("Position", style={'color': 'white', 'textAlign': 'center'}),
-                        html.Div(id='position-box')
-                    ], style=card_style),
-
                     html.Div([
                         html.H3("Stint Visualization", style={'color': 'white', 'textAlign': 'center'}),
                         dcc.Graph(id='stint-visualization', figure={}, config={'displayModeBar': False})
@@ -63,12 +56,10 @@ def get_layout():
                 # Right Column
                 html.Div([
                     html.Div([
-                        html.H3("Mini-Sector Matrix", style={'color': 'white', 'textAlign': 'center'}),
                         dcc.Graph(id='mini-sector-matrix', figure={}, config={'displayModeBar': False})
                     ], style=card_style),
 
                     html.Div([
-                        html.H3("Sector Times by Driver (Last Valid Lap)", style={'color': 'white', 'textAlign': 'center'}),
                         html.Div(id='sector-split-matrix')
                     ], style=card_style)
 

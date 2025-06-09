@@ -37,12 +37,40 @@ def get_sector_color_from_minis(segments):
 
 def generate_sector_split_matrix(lap_data):
     try:
+        # Mapping drivers to teams and colors
+        driver_team_map = {
+            4: 'McLaren', 81: 'McLaren',
+            1: 'Red Bull', 22: 'Red Bull',
+            16: 'Ferrari', 44: 'Ferrari',
+            63: 'Mercedes', 12: 'Mercedes',
+            5: 'Sauber', 27: 'Sauber',
+            31: 'Haas', 87: 'Haas',
+            30: 'RB', 6: 'RB',
+            55: 'Williams', 23: 'Williams',
+            10: 'Alpine', 43: 'Alpine',
+            14: 'Aston', 18: 'Aston'
+        }
+
+        team_color_map = {
+            'McLaren': '#FF8000',
+            'Red Bull': "#00225E",
+            'Ferrari': '#DC0000',
+            'Mercedes': '#00D2BE',
+            'Sauber': '#00E701',
+            'Haas': '#B6BABD',
+            'RB': '#FFFFFF',
+            'Williams': "#266BEC",
+            'Alpine': '#FF87BC',
+            'Aston': '#00665E'
+        }
+
         df = get_latest_laps_with_nulls(lap_data)
+        df['Team'] = df['driver_number'].map(driver_team_map)
+        df = df.sort_values(by='Team', kind='stable').reset_index(drop=True)
 
         df['S1'] = df['duration_sector_1']
         df['S2'] = df['duration_sector_2']
         df['S3'] = df['duration_sector_3']
-        df['Lap'] = df['lap_number']
 
         df['sector_color_s1'] = df['segments_sector_1'].apply(get_sector_color_from_minis)
         df['sector_color_s2'] = df['segments_sector_2'].apply(get_sector_color_from_minis)
@@ -55,10 +83,9 @@ def generate_sector_split_matrix(lap_data):
 
         df['Total Time'] = df.apply(calc_total, axis=1)
 
-        table_data = df[['driver_number', 'Lap', 'S1', 'S2', 'S3', 'Total Time']].copy()
-        table_data.columns = ['Driver', 'Lap', 'S1', 'S2', 'S3', 'Total Time']
+        table_data = df[['driver_number', 'S1', 'S2', 'S3', 'Total Time']].copy()
+        table_data.columns = ['Driver', 'S1', 'S2', 'S3', 'Total Time']
 
-        # Redondear para mostrar
         for col in ['S1', 'S2', 'S3']:
             table_data[col] = table_data[col].apply(lambda x: round(x, 3) if pd.notnull(x) else "No Time")
 
@@ -92,33 +119,61 @@ def generate_sector_split_matrix(lap_data):
                     'color': text_map.get(color, 'white')
                 })
 
-        return html.Div([
-            dash_table.DataTable(
-                id='sector-table',
-                columns=[{"name": col, "id": col} for col in table_data.columns],
-                data=table_data.to_dict('records'),
-                style_cell={
-                    'backgroundColor': '#111111',
+        for i, row in df.iterrows():
+            driver = row['driver_number']
+            team = driver_team_map.get(driver)
+            team_color = team_color_map.get(team)
+            if team_color:
+                font_color = 'white' if team in ['Williams', 'Red Bull', 'Aston', 'Ferrari'] else 'black'
+                style_data_conditional.append({
+                    'if': {
+                        'filter_query': f'{{Driver}} = {driver}',
+                        'column_id': 'Driver'
+                    },
+                    'backgroundColor': team_color,
+                    'color': font_color
+                })
+
+        return html.Div(
+            style={'padding': '20px', 'backgroundColor': '#1a1a1a', 'borderRadius': '10px'},
+            children=[
+                html.H2("Latest Lap Times by Driver", style={
                     'color': 'white',
                     'textAlign': 'center',
-                    'padding': '8px',
-                    'fontFamily': 'Arial',
-                    'fontSize': '14px',
-                },
-                style_header={
-                    'backgroundColor': '#111111',
-                    'fontWeight': 'bold',
-                    'color': 'deepskyblue',
-                    'borderBottom': '1px solid #444',
-                },
-                style_data_conditional=style_data_conditional,
-                style_table={
-                    'overflowX': 'auto',
-                    'border': '1px solid #333',
-                    'borderRadius': '8px',
-                },
-            )
-        ])
+                    'marginBottom': '10px',
+                    'fontFamily': 'Arial'
+                }),
+                html.P("Includes last valid lap with sector performance and team color indicators.",
+                       style={'textAlign': 'center', 'color': '#ccc', 'marginBottom': '20px'}),
+                dash_table.DataTable(
+                    id='sector-table',
+                    columns=[{"name": col, "id": col} for col in table_data.columns],
+                    data=table_data.to_dict('records'),
+                    style_cell={
+                        'backgroundColor': '#111111',
+                        'color': 'white',
+                        'textAlign': 'center',
+                        'padding': '8px',
+                        'fontFamily': 'Arial',
+                        'fontSize': '14px',
+                    },
+                    style_header={
+                        'backgroundColor': '#111111',
+                        'fontWeight': 'bold',
+                        'color': 'white',
+                        'borderBottom': '1px solid #444',
+                        'fontSize': '15px'
+                    },
+                    style_data_conditional=style_data_conditional,
+                    style_table={
+                        'overflowX': 'auto',
+                        'border': '1px solid #333',
+                        'borderRadius': '8px',
+                        'boxShadow': '0 0 12px rgba(0,0,0,0.5)'
+                    },
+                )
+            ]
+        )
     except Exception as e:
         print(f"❌ ERROR en generate_sector_split_matrix: {e}")
         return html.Div(f"❌ Error generando la tabla: {e}", style={'color': 'red'})
